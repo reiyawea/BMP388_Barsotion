@@ -1,26 +1,37 @@
 #include "BMP388_Barsotion.h"
 
 
+//==============================================================================
+BMP388_t::BMP388_t()
+{
+    this->readRegister = BMP388_I2C_readRegister;
+    this->writeRegister = BMP388_I2C_writeRegister;
+}
+
+
 bool BMP388_t::init(uint8_t addr)
 {
     _address_ = addr;
+    BMP388_I2C_Init(addr, 17, 18);
     uint8_t data;
-    ReadRegister(BMP388_CHIP_ID, &data);
+    this->readRegister(BMP388_CHIP_ID, &data, 1);
     if (data != 0x50) return false;
     // Enable Thermometer & Barometer
-    WriteRegister(BMP388_PWR_CTRL, 0x33);
+    data = 0x33;
+    this->writeRegister(BMP388_PWR_CTRL, &data, 1);
     ReadCalibrationData();
     return true;
 }
-    
 
+
+//==============================================================================
 void BMP388_t::setTempOvs(uint8_t value)
 {
     value &= 0b00000111; //защита от дурака
     value <<= 3;
     osr_reg &= 0b00000111;
     osr_reg |= value;
-    WriteRegister(BMP388_OSR, osr_reg);
+    this->writeRegister(BMP388_OSR, osr_reg);
 }
 
 
@@ -29,7 +40,7 @@ void BMP388_t::setPresOvs(uint8_t value)
     value &= 0b00000111; //защита от дурака
     osr_reg &= 0b00111000;
     osr_reg |= value;
-    WriteRegister(BMP388_OSR, osr_reg);
+    this->writeRegister(BMP388_OSR, osr_reg);
 }
 
 
@@ -37,45 +48,22 @@ void BMP388_t::setIIRFilterCoef(uint8_t value)
 {
     value &= 0b00000111; //защита от дурака
     value <<= 1;
-    WriteRegister(BMP388_CONFIG, value);
+    this->writeRegister(BMP388_CONFIG, value);
 }
 
 
 void BMP388_t::setODR(uint8_t value)
 {
     value &= 0b00011111; //защита от дурака
-    WriteRegister(BMP388_ODR, value);
+    this->writeRegister(BMP388_ODR, value);
 }
 
 
 //==============================================================================
-void ReadRegister(uint8_t reg, uint8_t* buf) {
-            Wire.beginTransmission(_address_);
-            Wire.write(reg);
-            Wire.endTransmission(false);
-            Wire.requestFrom(_address_, (uint8_t)1, (uint8_t)true);
-            *buf = Wire.read();
-            Wire.endTransmission(true);
-        }
-        void WriteRegister(uint8_t reg, uint8_t data) {
-            Wire.beginTransmission(_address_);
-            Wire.write(reg);
-            Wire.write(data);
-            Wire.endTransmission(true);
-        }
 void BMP388_t::ReadCalibrationData()
 {
     uint8_t data[21];
-    Wire.beginTransmission(_address_);
-    Wire.write(BMP388_T1_L);
-    Wire.endTransmission(false);
-    Wire.requestFrom(_address_, (uint8_t)21, (uint8_t)true);
-    for (uint8_t i=0; i<21; i++) data[i] = Wire.read();
-    Wire.endTransmission(true);
-    //Преобразование получаемых с датчика констант в параметры коррекции
-    // TODO: избавиться от массива data, сделать последовательный
-    // вызов функции Wire.read() Upd: если так сделать, программа
-    // занимает на 72 байта больше места в памяти
+    this->readRegister(BMP388_T1_L, data, 21);
     _par.t1 = (float)(((uint16_t)data[1] << 8) | ((uint16_t)data[0]));
     _par.t2 = (float)(((uint16_t)data[3] << 8) | ((uint16_t)data[2]));
     _par.t3 = (float)((int8_t)data[4]);
@@ -129,3 +117,70 @@ float BMP388_t::AdvancedShift(float f, uint8_t value)
 }
 
 
+//==============================================================================
+void BMP388_t::calcTemp(uint8_t *raw)
+{
+    uint32_t uncomp_temp = (uint32_t)raw[2]<<16 | (uint32_t)raw[1]<<8 | raw[0];
+    BMP388_compensate_temperature(uncomp_temp);
+}
+
+
+void BMP388_t::calcPres(uint8_t *raw)
+{
+    uint32_t uncomp_pres = (uint32_t)raw[2]<<16 | (uint32_t)raw[1]<<8 | raw[0];
+    BMP388_compensate_pressure(uncomp_pres);
+}
+
+
+void BMP388_t::calcAlt()
+{
+    this->altitude = 44330.0 * (1.0 - powf(this->pressure / _SEA_LEVEL, 0.1903));
+}
+
+
+void BMP388_t::calcAlt(float p0)
+{
+    this->altitude = 44330.0 * (1.0 - powf(this->pressure / p0, 0.1903));
+}
+
+
+//==============================================================================
+void BMP388_t::BMP388_compensate_temperature(uint32_t uncomp_temp)
+{
+    float data1;
+    float data2;
+    data1 = (float)(uncomp_temp - _par.t1);
+    data2 = (float)(data1 * _par.t2);
+    // Update the compensated temperature in calib structure since
+    // this is needed for pressure calculation
+    this->temperature = data2 + (data1 * data1) * _par.t3;
+}
+
+
+void BMP388_t::BMP388_compensate_pressure(uint32_t uncomp_press)
+{
+    // Temporary variables used for compensation
+    float data1;
+    float data2;
+    float data3;
+    float data4;
+    float out1;
+    float out2;
+    float T_lin2 = this->temperature * this->temperature;
+    float T_lin3 = T_lin2 * this->temperature;
+    float F_uncomp_press = (float)uncomp_press;
+    // Calibration data
+    data1 = _par.p6 * this->temperature;
+    data2 = _par.p7 * T_lin2;
+    data3 = _par.p8 * T_lin3;
+    out1 = _par.p5 + data1 + data2 + data3;
+    data1 = _par.p2 * this->temperature;
+    data2 = _par.p3 * T_lin2;
+    data3 = _par.p4 * T_lin3;
+    out2 = F_uncomp_press * (_par.p1 + data1 + data2 + data3);
+    data1 = F_uncomp_press * F_uncomp_press;
+    data2 = _par.p9 + _par.p10 * this->temperature;
+    data3 = data1 * data2;
+    data4 = data3 + (data1 * F_uncomp_press) * _par.p11;
+    this->pressure = out1 + out2 + data4;
+}

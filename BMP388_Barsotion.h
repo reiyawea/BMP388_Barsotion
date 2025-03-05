@@ -6,6 +6,7 @@
 #pragma once
 
 #include "BMP388_RegMap.h"
+#include "BMP388_Interface.h"
 
 #define _SEA_LEVEL                   101325.0
 
@@ -52,17 +53,17 @@ class BMP388_t
 {
 private:
     uint8_t _address_;
-    struct {
+    struct
+    {
         float t1, t2, t3;
         float p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11;
     } _par;
-    float T_lin, comp_press;
     uint8_t osr_reg;
     bool temp_flag;
     bool press_flag;
     uint32_t raw[2];
-    
 public:
+    float temperature, pressure, altitude;
     uint8_t (*readRegister)(uint8_t reg, uint8_t *buf, uint8_t size);
     uint8_t (*writeRegister)(uint8_t reg, uint8_t *buf, uint8_t size);
 
@@ -75,113 +76,17 @@ public:
     void setIIRFilterCoef(uint8_t value);
     void setODR(uint8_t value);
         
-public:
-    void ReadRegister(uint8_t reg, uint8_t* buf);
-        void WriteRegister(uint8_t reg, uint8_t data);
-        inline void ReadCalibrationData();
-        //Функция AdvancedShift умножает float f на 2 в степени value
-        float AdvancedShift(float f, uint8_t value);
+    void ReadCalibrationData();
+    //Функция AdvancedShift умножает float f на 2 в степени value
+    float AdvancedShift(float f, uint8_t value);
 
-    public:
-        void performReading() {
-            //Чтение сырых данных
-            //uint32_t raw[2];
-            Wire.beginTransmission(_address_);
-            Wire.write(BMP388_PRESS_XLSB);
-            Wire.endTransmission(false);
-            Wire.requestFrom((uint8_t)_address_, (uint8_t)6, (uint8_t)true);
-            raw[0] = (uint32_t)Wire.read() | ((uint32_t)Wire.read()<<8) |
-                ((uint32_t)Wire.read()<<16);
-            raw[1] = (uint32_t)Wire.read() | ((uint32_t)Wire.read()<<8) |
-                ((uint32_t)Wire.read()<<16);
-            Wire.endTransmission(true);
-            press_flag = false;
-            temp_flag = false;
-            //Обработка данных
-            //<>
-        }
-        volatile float readTemperature() {
-            temp_flag = true;
-            return BMP388_compensate_temperature(raw[1]);
-        }
-        volatile float readPressure() {
-            press_flag - true;
-            if (temp_flag == false) {
-                T_lin = readTemperature();
-            }
-            return BMP388_compensate_pressure(raw[0]);
-        }
-        float readAltitude() {
-            if (press_flag == false) {
-                comp_press = readPressure();
-            }
-            return 44330.0 * (1.0 - pow(comp_press / _SEA_LEVEL, 0.1903));
-        }
-        float readAltitude(float p0) {
-            if (press_flag == false) {
-                comp_press = readPressure();
-            }
-            return 44330.0 * (1.0 - pow(comp_press / p0, 0.1903));
-        }
-        float readBasePressure() {
-            /*setTemperatureOversampling(0x011); //плодитель багов
-            setPressureOversampling(0x011);
-            setOutputDataRate(BMP3_ODR_12p5_HZ);
-            setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_127);*/
-            /*float p0 = 0;
-            _delay_ms(4000);
-            for (uint8_t i=0; i<20; i++) {
-                performReading();
-                p0 += readPressure();
-                _delay_ms(100);
-            }
-            return p0/20;//*/
-            performReading();
-            readPressure();
-            _delay_ms(1000);
-            //delay(1000);
-            performReading();
-            return readPressure();//*/
-        }
+    void calcTemp(uint8_t *raw);
+    void calcPres(uint8_t *raw);
+    void calcAlt();
+    void calcAlt(float p0);
         
-    private:
-        float BMP388_compensate_temperature(uint32_t uncomp_temp) {
-            float data1;
-            float data2;
-            data1 = (float)(uncomp_temp - _par.t1);
-            data2 = (float)(data1 * _par.t2);
-            // Update the compensated temperature in calib structure since
-            // this is needed for pressure calculation
-            T_lin = data2 + (data1 * data1) * _par.t3;
-            // Returns compensated temperature
-            return T_lin;
-        }
-        float BMP388_compensate_pressure(uint32_t uncomp_press) {
-            // Temporary variables used for compensation
-            float data1;
-            float data2;
-            float data3;
-            float data4;
-            float out1;
-            float out2;
-            float T_lin2 = T_lin * T_lin;
-            float T_lin3 = T_lin2 * T_lin;
-            float F_uncomp_press = (float)uncomp_press;
-            // Calibration data
-            data1 = _par.p6 * T_lin;
-            data2 = _par.p7 * T_lin2;
-            data3 = _par.p8 * T_lin3;
-            out1 = _par.p5 + data1 + data2 + data3;
-            data1 = _par.p2 * T_lin;
-            data2 = _par.p3 * T_lin2;
-            data3 = _par.p4 * T_lin3;
-            out2 = F_uncomp_press * (_par.p1 + data1 + data2 + data3);
-            data1 = F_uncomp_press * F_uncomp_press;
-            data2 = _par.p9 + _par.p10 * T_lin;
-            data3 = data1 * data2;
-            data4 = data3 + (data1 * F_uncomp_press) * _par.p11;
-            comp_press = out1 + out2 + data4;
-            return comp_press;
-        }//*/
+private:
+    void BMP388_compensate_temperature(uint32_t uncomp_temp);
+    void BMP388_compensate_pressure(uint32_t uncomp_press);
 };
 #endif
