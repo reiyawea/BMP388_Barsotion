@@ -10,47 +10,49 @@
 
 #define _SEA_LEVEL                   101325.0
 
-#define BMP3_OVERSAMPLING_1X        0b000
-#define BMP3_OVERSAMPLING_2X        0b001
-#define BMP3_OVERSAMPLING_4X        0b010
-#define BMP3_OVERSAMPLING_8X        0b011
-#define BMP3_OVERSAMPLING_16X       0b100
-#define BMP3_OVERSAMPLING_32X       0b101
-
-#define BMP3_IIR_FILTER_COEFF_0     0b000
-#define BMP3_IIR_FILTER_COEFF_1     0b001
-#define BMP3_IIR_FILTER_COEFF_3     0b010
-#define BMP3_IIR_FILTER_COEFF_7     0b011
-#define BMP3_IIR_FILTER_COEFF_15    0b100
-#define BMP3_IIR_FILTER_COEFF_31    0b101
-#define BMP3_IIR_FILTER_COEFF_63    0b110
-#define BMP3_IIR_FILTER_COEFF_127   0b111
-
-#define BMP3_ODR_200_HZ             0x00
-#define BMP3_ODR_100_HZ             0x01
-#define BMP3_ODR_50_HZ              0x02
-#define BMP3_ODR_25_HZ              0x03
-#define BMP3_ODR_12p5_HZ            0x04
-#define BMP3_ODR_6p25_HZ            0x05
-#define BMP3_ODR_3p1_HZ             0x06
-#define BMP3_ODR_1p5_HZ             0x07
-#define BMP3_ODR_0p78_HZ            0x08
-#define BMP3_ODR_0p39_HZ            0x09
-#define BMP3_ODR_0p2_HZ             0x0A
-#define BMP3_ODR_0p1_HZ             0x0B
-#define BMP3_ODR_0p05_HZ            0x0C
-#define BMP3_ODR_0p02_HZ            0x0D
-#define BMP3_ODR_0p01_HZ            0x0E
-#define BMP3_ODR_0p006_HZ           0x0F
-#define BMP3_ODR_0p003_HZ           0x10
-#define BMP3_ODR_0p0015_HZ          0x11
-
-#define TEMP_FLAG                   0x01
-#define PRESS_FLAG                  0x02
-
 
 class BMP388_t
 {
+public:
+    enum {
+        ODR_200_HZ = 0x00,
+        ODR_100_HZ = 0x01,
+        ODR_50_HZ = 0x02,
+        ODR_25_HZ = 0x03,
+        ODR_12p5_HZ = 0x04,
+        ODR_6p25_HZ = 0x05,
+        ODR_3p1_HZ = 0x06,
+        ODR_1p5_HZ = 0x07,
+        ODR_0p78_HZ = 0x08,
+        ODR_0p39_HZ = 0x09,
+        ODR_0p2_HZ = 0x0A,
+        ODR_0p1_HZ = 0x0B,
+        ODR_0p05_HZ = 0x0C,
+        ODR_0p02_HZ = 0x0D,
+        ODR_0p01_HZ = 0x0E,
+        ODR_0p006_HZ = 0x0F,
+        ODR_0p003_HZ = 0x10
+        ODR_0p0015_HZ = 0x11
+    } ODR_t;
+    enum {
+        IIR_FILTER_COEF_0 = 0b000,
+        IIR_FILTER_COEF_1 = 0b001,
+        IIR_FILTER_COEF_3 = 0b010,
+        IIR_FILTER_COEF_7 = 0b011,
+        IIR_FILTER_COEF_15 = 0b100,
+        IIR_FILTER_COEF_31 = 0b101,
+        IIR_FILTER_COEF_63 = 0b110,
+        IIR_FILTER_COEF_127 = 0b111
+    } IIR_FILTER_COEF_t;
+    enum {
+        OVS_1X = 0b000,
+        OVS_2X = 0b001,
+        OVS_4X = 0b010,
+        OVS_8X = 0b011,
+        OVS_16X = 0b100,
+        OVS_32X = 0b101
+    } OVS_t;
+
 private:
     uint8_t _address_;
     struct
