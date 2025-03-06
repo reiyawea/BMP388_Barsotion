@@ -8,18 +8,21 @@ BMP388_t::BMP388_t()
 }
 
 
-bool BMP388_t::init(uint8_t addr)
+uint8_t BMP388_t::init(uint8_t addr)
 {
     _address_ = addr;
     BMP388_I2C_Init(addr, 17, 18);
     uint8_t data;
-    this->readRegister(BMP388_CHIP_ID, &data, 1);
-    if (data != 0x50) return false;
+    uint8_t res;
+    res = this->readRegister(BMP388_CHIP_ID, &data, 1);
+    if (res != 0) return res;
+    if (data != 0x50) return 1;
     // Enable Thermometer & Barometer
     data = 0x33;
     this->writeRegister(BMP388_PWR_CTRL, &data, 1);
-    ReadCalibrationData();
-    return true;
+    res = readCalibrationData();
+    if (res != 0) return res;
+    return 0;
 }
 
 
@@ -30,45 +33,46 @@ uint8_t BMP388_t::getWhoAmI()
     return dummy;
 }
 //==============================================================================
-void BMP388_t::setTempOvs(uint8_t value)
+uint8_t BMP388_t::setTempOvs(uint8_t value)
 {
     value &= 0b00000111; //защита от дурака
     value <<= 3;
     osr_reg &= 0b00000111;
     osr_reg |= value;
-    this->writeRegister(BMP388_OSR, &osr_reg, 1);
+    return this->writeRegister(BMP388_OSR, &osr_reg, 1);
 }
 
 
-void BMP388_t::setPresOvs(uint8_t value)
+uint8_t BMP388_t::setPresOvs(uint8_t value)
 {
     value &= 0b00000111; //защита от дурака
     osr_reg &= 0b00111000;
     osr_reg |= value;
-    this->writeRegister(BMP388_OSR, &osr_reg, 1);
+    return this->writeRegister(BMP388_OSR, &osr_reg, 1);
 }
 
 
-void BMP388_t::setIIRFilterCoef(uint8_t value)
+uint8_t BMP388_t::setIIRFilterCoef(uint8_t value)
 {
     value &= 0b00000111; //защита от дурака
     value <<= 1;
-    this->writeRegister(BMP388_CONFIG, &value, 1);
+    return this->writeRegister(BMP388_CONFIG, &value, 1);
 }
 
 
-void BMP388_t::setODR(uint8_t value)
+uint8_t BMP388_t::setODR(uint8_t value)
 {
     value &= 0b00011111; //защита от дурака
-    this->writeRegister(BMP388_ODR, &value, 1);
+    return this->writeRegister(BMP388_ODR, &value, 1);
 }
 
 
 //==============================================================================
-void BMP388_t::ReadCalibrationData()
+uint8_t BMP388_t::ReadCalibrationData()
 {
     uint8_t data[21];
-    this->readRegister(BMP388_T1_L, data, 21);
+    uint8_t res = this->readRegister(BMP388_T1_L, data, 21);
+    if (res != 0) return res;
     _par.t1 = (float)(((uint16_t)data[1] << 8) | ((uint16_t)data[0]));
     _par.t2 = (float)(((uint16_t)data[3] << 8) | ((uint16_t)data[2]));
     _par.t3 = (float)((int8_t)data[4]);
@@ -97,6 +101,7 @@ void BMP388_t::ReadCalibrationData()
     _par.p9 = AdvancedShift(_par.p9, -48);
     _par.p10 = AdvancedShift(_par.p10, -48);
     _par.p11 = AdvancedShift(_par.p11, -65);
+    return 0;
 }
 
 

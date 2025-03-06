@@ -73,15 +73,14 @@ public:
 public:
     BMP388_t();
     
-    bool init(uint8_t addr);
+    uint8_t init(uint8_t addr);
     uint8_t getWhoAmI();
-    void setTempOvs(uint8_t value);
-    void setPresOvs(uint8_t value);
-    void setIIRFilterCoef(uint8_t value);
-    void setODR(uint8_t value);
+    uint8_t setTempOvs(uint8_t value);
+    uint8_t setPresOvs(uint8_t value);
+    uint8_t setIIRFilterCoef(uint8_t value);
+    uint8_t setODR(uint8_t value);
         
-    void ReadCalibrationData();
-    //Функция AdvancedShift умножает float f на 2 в степени value
+    uint8_t readCalibrationData();
     float AdvancedShift(float f, uint8_t value);
 
     void calcTemp(uint8_t *raw);
