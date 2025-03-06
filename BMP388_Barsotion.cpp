@@ -23,6 +23,12 @@ bool BMP388_t::init(uint8_t addr)
 }
 
 
+uint8_t BMP388_t::getWhoAmI()
+{
+    uint8_t dummy;
+    this->readRegister(BMP388_CHIP_ID, &dummy, 1);
+    return dummy;
+}
 //==============================================================================
 void BMP388_t::setTempOvs(uint8_t value)
 {

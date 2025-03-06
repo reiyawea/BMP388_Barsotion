@@ -74,6 +74,7 @@ public:
     BMP388_t();
     
     bool init(uint8_t addr);
+    uint8_t getWhoAmI();
     void setTempOvs(uint8_t value);
     void setPresOvs(uint8_t value);
     void setIIRFilterCoef(uint8_t value);
