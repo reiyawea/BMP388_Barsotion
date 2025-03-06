@@ -7,6 +7,7 @@
 
 #include "BMP388_RegMap.h"
 #include "BMP388_Interface.h"
+#include "math.h"
 
 #define _SEA_LEVEL                   101325.0
 
@@ -31,8 +32,8 @@ public:
         ODR_0p02_HZ = 0x0D,
         ODR_0p01_HZ = 0x0E,
         ODR_0p006_HZ = 0x0F,
-        ODR_0p003_HZ = 0x10
-        ODR_0p0015_HZ = 0x11
+        ODR_0p003_HZ = 0x10,
+        ODR_0p0015_HZ = 0x11,
     } ODR_t;
     enum {
         IIR_FILTER_COEF_0 = 0b000,
@@ -42,7 +43,7 @@ public:
         IIR_FILTER_COEF_15 = 0b100,
         IIR_FILTER_COEF_31 = 0b101,
         IIR_FILTER_COEF_63 = 0b110,
-        IIR_FILTER_COEF_127 = 0b111
+        IIR_FILTER_COEF_127 = 0b111,
     } IIR_FILTER_COEF_t;
     enum {
         OVS_1X = 0b000,
@@ -50,7 +51,7 @@ public:
         OVS_4X = 0b010,
         OVS_8X = 0b011,
         OVS_16X = 0b100,
-        OVS_32X = 0b101
+        OVS_32X = 0b101,
     } OVS_t;
 
 private:
@@ -91,4 +92,3 @@ private:
     void BMP388_compensate_temperature(uint32_t uncomp_temp);
     void BMP388_compensate_pressure(uint32_t uncomp_press);
 };
-#endif

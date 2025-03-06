@@ -8,6 +8,7 @@ uint8_t BMP388_I2C_Init(uint8_t addr, int sda, int scl)
 {
     Wire.begin(sda, scl);
     __I2C_Wire_address = addr;
+    return 0;
 }
 
 
@@ -22,6 +23,7 @@ uint8_t BMP388_I2C_readRegister(uint8_t reg, uint8_t *buf, uint8_t size)
         buf[i] = Wire.read();
     }
     Wire.endTransmission(true);
+    return 0;
 }
 
 
@@ -34,4 +36,5 @@ uint8_t BMP388_I2C_writeRegister(uint8_t reg, uint8_t *buf, uint8_t size)
         Wire.write(buf[i]);
     }
     Wire.endTransmission(true);
+    return 0;
 }

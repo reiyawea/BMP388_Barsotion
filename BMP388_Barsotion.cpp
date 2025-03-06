@@ -1,6 +1,5 @@
 #include "BMP388_Barsotion.h"
 
-
 //==============================================================================
 BMP388_t::BMP388_t()
 {
@@ -31,7 +30,7 @@ void BMP388_t::setTempOvs(uint8_t value)
     value <<= 3;
     osr_reg &= 0b00000111;
     osr_reg |= value;
-    this->writeRegister(BMP388_OSR, osr_reg);
+    this->writeRegister(BMP388_OSR, &osr_reg, 1);
 }
 
 
@@ -40,7 +39,7 @@ void BMP388_t::setPresOvs(uint8_t value)
     value &= 0b00000111; //защита от дурака
     osr_reg &= 0b00111000;
     osr_reg |= value;
-    this->writeRegister(BMP388_OSR, osr_reg);
+    this->writeRegister(BMP388_OSR, &osr_reg, 1);
 }
 
 
@@ -48,14 +47,14 @@ void BMP388_t::setIIRFilterCoef(uint8_t value)
 {
     value &= 0b00000111; //защита от дурака
     value <<= 1;
-    this->writeRegister(BMP388_CONFIG, value);
+    this->writeRegister(BMP388_CONFIG, &value, 1);
 }
 
 
 void BMP388_t::setODR(uint8_t value)
 {
     value &= 0b00011111; //защита от дурака
-    this->writeRegister(BMP388_ODR, value);
+    this->writeRegister(BMP388_ODR, &value, 1);
 }
 
 
