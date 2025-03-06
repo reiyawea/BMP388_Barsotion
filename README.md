@@ -1,5 +1,6 @@
 # Arduino library for BMP388 barometer
 
+![](./files/pic1.jpg)
 ***
 ## Methods
 ### `BMP388_t`
@@ -20,6 +21,7 @@ Sets temperature oversampling. Allowed values:
 - `BMP388_t::OVS_8X`
 - `BMP388_t::OVS_16X`
 - `BMP388_t::OVS_32X`
+
 Returns 0 if OK, other value if error.
 ### `uint8_t setPresOvs(uint8_t ovs)`
 Sets pressure oversampling. Allowed values are the same as for `setTempOvs` function. Returns 0 if OK, other value if error.
@@ -33,6 +35,7 @@ Sets IIR filter coefficient. Note that bigger values give more accurate result, 
 - `BMp388_t::IIR_FILTER_COEF_31`
 - `BMp388_t::IIR_FILTER_COEF_63`
 - `BMp388_t::IIR_FILTER_COEF_127`
+
 Returns 0 if OK, other value if error.
 ### `uint8_t setODR(uint8_t odr)`
 Sets the sensor's ODR value. Allowed values:
@@ -54,6 +57,7 @@ Sets the sensor's ODR value. Allowed values:
 - `BMP388_t::ODR_0p006_HZ`
 - `BMP388_t::ODR_0p003_HZ`
 - `BMP388_t::ODR_0p0015_HZ`
+
 Returns 0 if OK, other value if error.
 ### `void calcTemp(uint8_t *raw)`
 Calculates temperature. `raw[0]` should contain the `BMP388_TEMP_XLSB` register value, `raw[1]` - `BMP388_TEMP_LSB`, `raw[2]` - `BMP388_TEMP_MSB`.
