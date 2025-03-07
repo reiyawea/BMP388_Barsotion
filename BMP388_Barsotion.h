@@ -9,7 +9,7 @@
 #include "BMP388_Interface.h"
 #include "math.h"
 
-#define _SEA_LEVEL                   101325.0
+#define _SEA_LEVEL                   103250.0
 
 
 class BMP388_t
@@ -73,7 +73,8 @@ public:
 public:
     BMP388_t();
     
-    uint8_t init(uint8_t addr);
+    //TODO: add init(uint8_t addr) without sda & scl
+    uint8_t init(uint8_t addr, int sda, int scl);
     uint8_t getWhoAmI();
     uint8_t setTempOvs(uint8_t value);
     uint8_t setPresOvs(uint8_t value);

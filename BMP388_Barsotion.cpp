@@ -8,10 +8,10 @@ BMP388_t::BMP388_t()
 }
 
 
-uint8_t BMP388_t::init(uint8_t addr)
+uint8_t BMP388_t::init(uint8_t addr, int sda, int scl)
 {
     _address_ = addr;
-    BMP388_I2C_Init(addr, 17, 18);
+    BMP388_I2C_Init(addr, sda, scl);
     uint8_t data;
     uint8_t res;
     res = this->readRegister(BMP388_CHIP_ID, &data, 1);
@@ -68,7 +68,7 @@ uint8_t BMP388_t::setODR(uint8_t value)
 
 
 //==============================================================================
-uint8_t BMP388_t::ReadCalibrationData()
+uint8_t BMP388_t::readCalibrationData()
 {
     uint8_t data[21];
     uint8_t res = this->readRegister(BMP388_T1_L, data, 21);

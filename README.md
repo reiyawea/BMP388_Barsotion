@@ -5,7 +5,7 @@
 ## Methods
 ### `BMP388_t`
 Constructor.
-### `uint8_t init(uint8_t addr)`
+### `uint8_t init(uint8_t addr, int sda, int scl)`
 Initializes the sensor. Returns 0 if OK, other value if error.
 ### `uint8_t readRegister(uint8_t reg, uint8_t *buf, uint8_t size)`
 Reading BMP388's registers. Returns 0 if OK, other value if error.
