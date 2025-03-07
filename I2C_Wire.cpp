@@ -4,7 +4,15 @@
 
 uint8_t __I2C_Wire_address;
 
-uint8_t BMP388_I2C_Init(uint8_t addr, int sda, int scl)
+uint8_t BMP388_I2C_Init(uint8_t addr)
+{
+    Wire.begin();
+    __I2C_Wire_address = addr;
+    return 0;
+}
+
+
+uint8_t BMP388_I2C_Init_I2CPins(uint8_t addr, int sda, int scl)
 {
     Wire.begin(sda, scl);
     __I2C_Wire_address = addr;

@@ -21,6 +21,7 @@ void setup() {
   Serial.begin(115200);
   
   /* Address 0x76 or 0x77 */
+//  bmp.init(0x77);
   bmp.init(0x77, SDA_PIN, SCL_PIN);
 
   uint8_t buf[6];
