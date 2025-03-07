@@ -73,7 +73,7 @@ public:
 public:
     BMP388_t();
     
-    //TODO: add init(uint8_t addr) without sda & scl
+    uint8_t init(uint8_t addr);
     uint8_t init(uint8_t addr, int sda, int scl);
     uint8_t getWhoAmI();
     uint8_t setTempOvs(uint8_t value);
@@ -90,6 +90,7 @@ public:
     void calcAlt(float p0);
         
 private:
+    uint8_t i2c_init(uint8_t addr, int sda, int scl);
     void BMP388_compensate_temperature(uint32_t uncomp_temp);
     void BMP388_compensate_pressure(uint32_t uncomp_press);
 };
