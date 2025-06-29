@@ -91,7 +91,7 @@ uint8_t BMP388_t::readCalibrationData()
     _par.t1 = (float)(((uint16_t)data[1] << 8) | ((uint16_t)data[0]));
     _par.t2 = (float)(((uint16_t)data[3] << 8) | ((uint16_t)data[2]));
     _par.t3 = (float)((int8_t)data[4]);
-    _par.p1 = (float)(int16_t)((((int16_t)data[6] << 8) | ((int16_t)data[5]));
+    _par.p1 = (float)(int16_t)(((int16_t)data[6] << 8) | ((int16_t)data[5]));
     _par.p2 = (float)(int16_t)(((int16_t)data[8] << 8) | ((int16_t)data[7]));
     _par.p3 = (float)((uint8_t)data[9]);
     _par.p4 = (float)((int8_t)data[10]);
