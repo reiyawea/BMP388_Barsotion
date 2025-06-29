@@ -1,8 +1,9 @@
 # Arduino library for BMP388 barometer
 
 ![](./files/pic1.jpg)
-***
-## Methods
+
+---
+## ⚡️Methods
 ### `BMP388_t`
 Constructor.
 ### `uint8_t init(uint8_t addr, int sda, int scl)`
@@ -68,14 +69,11 @@ Calculates altitude from sea level value (101325 Pa).
 ### `void calcAlt(float p0)`
 Calculates altitude from `p0` value.
 
-***
-## Output data
+---
+## ⚡️Output data
 ### `temperature`
 Temperature in Celsium degrees.
 ### `pressure`
 Pressure in Pascals.
 ### `altitude`
 Altitude in meters.
-
-***
-
