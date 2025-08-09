@@ -58,7 +58,8 @@ private:
     uint8_t _address_;
     struct
     {
-        float t1, t2, t3;
+        uint32_t t1;
+        float t2, t3;
         float p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11;
     } _par;
     uint8_t osr_reg;
