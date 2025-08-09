@@ -88,7 +88,7 @@ uint8_t BMP388_t::readCalibrationData()
     uint8_t data[21];
     uint8_t res = this->readRegister(BMP388_T1_L, data, 21);
     if (res != 0) return res;
-    _par.t1 = (float)(((uint16_t)data[1] << 8) | ((uint16_t)data[0]));
+    _par.t1 = ((uint32_t)data[1] << 16) | ((uint32_t)data[0] << 8);
     _par.t2 = (float)(((uint16_t)data[3] << 8) | ((uint16_t)data[2]));
     _par.t3 = (float)((int8_t)data[4]);
     _par.p1 = (float)(int16_t)(((int16_t)data[6] << 8) | ((int16_t)data[5]));
@@ -130,7 +130,6 @@ uint8_t BMP388_t::readCalibrationData()
     //Serial.println(_par.p10);
     //Serial.print("P11: ");
     //Serial.println(_par.p11);
-    _par.t1 = AdvancedShift(_par.t1, 8);
     _par.t2 = AdvancedShift(_par.t2, -30);
     _par.t3 = AdvancedShift(_par.t3, -48);
     _par.p1 = AdvancedShift(_par.p1 - 16384.0, -20);
